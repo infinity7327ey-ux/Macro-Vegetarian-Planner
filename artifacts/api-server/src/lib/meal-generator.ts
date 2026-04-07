@@ -42,6 +42,7 @@ export interface MacroTargets {
   dailyProteinG: number;
   dailyCarbsG: number;
   dailyFatsG: number;
+  proteinPerKg: number;
 }
 
 const INGREDIENTS_DB: Record<string, IngredientData> = {
