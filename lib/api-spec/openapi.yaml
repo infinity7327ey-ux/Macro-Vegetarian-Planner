@@ -3,13 +3,19 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: High-Protein Vegetarian Macro Planner API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: profiles
+    description: User profile operations
+  - name: meal-plans
+    description: Meal plan operations
+  - name: ingredients
+    description: Ingredient operations
 paths:
   /healthz:
     get:
@@ -24,6 +30,252 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /profiles:
+    get:
+      operationId: listProfiles
+      tags: [profiles]
+      summary: List all user profiles
+      responses:
+        "200":
+          description: List of profiles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Profile"
+    post:
+      operationId: createProfile
+      tags: [profiles]
+      summary: Create a new user profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProfileBody"
+      responses:
+        "201":
+          description: Created profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /profiles/{id}:
+    get:
+      operationId: getProfile
+      tags: [profiles]
+      summary: Get a profile by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Profile found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateProfile
+      tags: [profiles]
+      summary: Update a profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProfileBody"
+      responses:
+        "200":
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /meal-plans:
+    get:
+      operationId: listMealPlans
+      tags: [meal-plans]
+      summary: List all meal plans
+      parameters:
+        - name: profileId
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of meal plans
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MealPlan"
+    post:
+      operationId: createMealPlan
+      tags: [meal-plans]
+      summary: Generate a new 7-day meal plan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMealPlanBody"
+      responses:
+        "201":
+          description: Generated meal plan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MealPlan"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /meal-plans/{id}:
+    get:
+      operationId: getMealPlan
+      tags: [meal-plans]
+      summary: Get a meal plan by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Meal plan found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MealPlan"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteMealPlan
+      tags: [meal-plans]
+      summary: Delete a meal plan
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /meal-plans/{id}/summary:
+    get:
+      operationId: getMealPlanSummary
+      tags: [meal-plans]
+      summary: Get macro summary for a meal plan
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Macro summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MealPlanSummary"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /ingredients:
+    get:
+      operationId: listIngredients
+      tags: [ingredients]
+      summary: List all available protein ingredients
+      responses:
+        "200":
+          description: List of ingredients
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Ingredient"
+
+  /macro-targets:
+    post:
+      operationId: calculateMacroTargets
+      tags: [profiles]
+      summary: Calculate daily macro targets based on body stats
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MacroTargetInput"
+      responses:
+        "200":
+          description: Calculated macro targets
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MacroTargets"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +286,347 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    Profile:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        weightKg:
+          type: number
+        heightCm:
+          type: ["number", "null"]
+        ageYears:
+          type: ["integer", "null"]
+        goal:
+          type: string
+          enum: [muscle_gain, fat_loss, maintenance]
+        activityLevel:
+          type: string
+          enum: [sedentary, lightly_active, moderately_active, very_active]
+        dietaryRestrictions:
+          type: array
+          items:
+            type: string
+        preferredProteins:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - weightKg
+        - weightKg
+        - heightCm
+        - ageYears
+        - goal
+        - activityLevel
+        - dietaryRestrictions
+        - preferredProteins
+        - createdAt
+        - updatedAt
+
+    CreateProfileBody:
+      type: object
+      properties:
+        name:
+          type: string
+        weightKg:
+          type: number
+        heightCm:
+          type: ["number", "null"]
+        ageYears:
+          type: ["integer", "null"]
+        goal:
+          type: string
+          enum: [muscle_gain, fat_loss, maintenance]
+        activityLevel:
+          type: string
+          enum: [sedentary, lightly_active, moderately_active, very_active]
+        dietaryRestrictions:
+          type: array
+          items:
+            type: string
+        preferredProteins:
+          type: array
+          items:
+            type: string
+      required:
+        - name
+        - weightKg
+        - goal
+        - activityLevel
+
+    UpdateProfileBody:
+      type: object
+      properties:
+        name:
+          type: string
+        weightKg:
+          type: number
+        heightCm:
+          type: ["number", "null"]
+        ageYears:
+          type: ["integer", "null"]
+        goal:
+          type: string
+          enum: [muscle_gain, fat_loss, maintenance]
+        activityLevel:
+          type: string
+          enum: [sedentary, lightly_active, moderately_active, very_active]
+        dietaryRestrictions:
+          type: array
+          items:
+            type: string
+        preferredProteins:
+          type: array
+          items:
+            type: string
+
+    Meal:
+      type: object
+      properties:
+        name:
+          type: string
+        mealType:
+          type: string
+          enum: [breakfast, lunch, dinner, snack, pre_workout, post_workout]
+        ingredients:
+          type: array
+          items:
+            $ref: "#/components/schemas/MealIngredient"
+        proteinG:
+          type: number
+        carbsG:
+          type: number
+        fatsG:
+          type: number
+        caloriesKcal:
+          type: number
+        notes:
+          type: ["string", "null"]
+      required:
+        - name
+        - mealType
+        - ingredients
+        - proteinG
+        - carbsG
+        - fatsG
+        - caloriesKcal
+        - notes
+
+    MealIngredient:
+      type: object
+      properties:
+        name:
+          type: string
+        quantityG:
+          type: number
+        proteinG:
+          type: number
+        carbsG:
+          type: number
+        fatsG:
+          type: number
+        caloriesKcal:
+          type: number
+      required:
+        - name
+        - quantityG
+        - proteinG
+        - carbsG
+        - fatsG
+        - caloriesKcal
+
+    DayPlan:
+      type: object
+      properties:
+        dayNumber:
+          type: integer
+        dayName:
+          type: string
+        workoutType:
+          type: ["string", "null"]
+          enum: [push, pull, legs, rest, null]
+        meals:
+          type: array
+          items:
+            $ref: "#/components/schemas/Meal"
+        totalProteinG:
+          type: number
+        totalCarbsG:
+          type: number
+        totalFatsG:
+          type: number
+        totalCaloriesKcal:
+          type: number
+      required:
+        - dayNumber
+        - dayName
+        - workoutType
+        - meals
+        - totalProteinG
+        - totalCarbsG
+        - totalFatsG
+        - totalCaloriesKcal
+
+    MealPlan:
+      type: object
+      properties:
+        id:
+          type: integer
+        profileId:
+          type: integer
+        weekNumber:
+          type: integer
+        days:
+          type: array
+          items:
+            $ref: "#/components/schemas/DayPlan"
+        targetProteinG:
+          type: number
+        targetCaloriesKcal:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - profileId
+        - weekNumber
+        - days
+        - targetProteinG
+        - targetCaloriesKcal
+        - createdAt
+
+    CreateMealPlanBody:
+      type: object
+      properties:
+        profileId:
+          type: integer
+        weekNumber:
+          type: integer
+      required:
+        - profileId
+
+    MealPlanSummary:
+      type: object
+      properties:
+        mealPlanId:
+          type: integer
+        avgDailyProteinG:
+          type: number
+        avgDailyCaloriesKcal:
+          type: number
+        avgDailyCarbsG:
+          type: number
+        avgDailyFatsG:
+          type: number
+        proteinGoalMetDays:
+          type: integer
+        topProteinSources:
+          type: array
+          items:
+            type: string
+        weeklyProteinG:
+          type: number
+        weeklyCaloriesKcal:
+          type: number
+      required:
+        - mealPlanId
+        - avgDailyProteinG
+        - avgDailyCaloriesKcal
+        - avgDailyCarbsG
+        - avgDailyFatsG
+        - proteinGoalMetDays
+        - topProteinSources
+        - weeklyProteinG
+        - weeklyCaloriesKcal
+
+    Ingredient:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        category:
+          type: string
+          enum: [dairy, legume, soy, supplement, grain, vegetable, nut_seed]
+        proteinPer100g:
+          type: number
+        carbsPer100g:
+          type: number
+        fatsPer100g:
+          type: number
+        caloriesPer100g:
+          type: number
+        isVegetarian:
+          type: boolean
+        isVegan:
+          type: boolean
+      required:
+        - id
+        - name
+        - category
+        - proteinPer100g
+        - carbsPer100g
+        - fatsPer100g
+        - caloriesPer100g
+        - isVegetarian
+        - isVegan
+
+    MacroTargetInput:
+      type: object
+      properties:
+        weightKg:
+          type: number
+        heightCm:
+          type: ["number", "null"]
+        ageYears:
+          type: ["integer", "null"]
+        goal:
+          type: string
+          enum: [muscle_gain, fat_loss, maintenance]
+        activityLevel:
+          type: string
+          enum: [sedentary, lightly_active, moderately_active, very_active]
+      required:
+        - weightKg
+        - goal
+        - activityLevel
+
+    MacroTargets:
+      type: object
+      properties:
+        dailyCaloriesKcal:
+          type: number
+        dailyProteinG:
+          type: number
+        dailyCarbsG:
+          type: number
+        dailyFatsG:
+          type: number
+        proteinPerKg:
+          type: number
+      required:
+        - dailyCaloriesKcal
+        - dailyProteinG
+        - dailyCarbsG
+        - dailyFatsG
+        - proteinPerKg
