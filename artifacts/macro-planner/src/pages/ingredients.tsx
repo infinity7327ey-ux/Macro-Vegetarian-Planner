@@ -87,7 +87,7 @@ export default function Ingredients() {
                           <div className="flex items-center gap-2">
                             {ing.name}
                             {ing.isVegan && (
-                              <Leaf className="h-3 w-3 text-green-500" title="Vegan" />
+                              <Leaf className="h-3 w-3 text-green-500" aria-label="Vegan" />
                             )}
                           </div>
                           <div className="sm:hidden mt-1">
